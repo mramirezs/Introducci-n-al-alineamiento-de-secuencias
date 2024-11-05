@@ -117,6 +117,8 @@ El archivo muestra que la contribución de puntuación por hacer coincidir una A
 Al observar visualmente la matriz de puntuación anterior, ya podemos deducir que favorecerá las discrepancias. Por ejemplo, generará fácilmente una alineación con discrepancias de la siguiente forma:
 
 ```bash
+pip install bio --upgrade
+
 bio align ATG ACG --local -match 5 -mismatch 4
 ```
 
