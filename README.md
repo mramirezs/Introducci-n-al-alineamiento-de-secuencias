@@ -112,6 +112,40 @@ curl -O ftp://ftp.ncbi.nlm.nih.gov/blast/matrices/NUC.4.4
 cat NUC.4.4
 ```
 
+El archivo muestra que la contribución de puntuación por hacer coincidir una A con una A es de 5 puntos, mientras que la contribución de una coincidencia entre una A y una T es de -4 puntos (es decir, una penalización de 4 puntos).
+
+Al observar visualmente la matriz de puntuación anterior, ya podemos deducir que favorecerá las discrepancias. Por ejemplo, generará fácilmente una alineación con discrepancias de la siguiente forma:
+
+```bash
+bio align ATG ACG --local -match 5 -mismatch 4
+```
+
+lo cual produce:
+
+```
+ATG
+|.|
+ACG
+```
+
+La segunda coincidencia G/G añadirá 5 puntos, y esta contribución superará la penalización de -4 introducida por la discrepancia. Si, en cambio, escribiéramos:
+
+```bash
+bio align ATG ACG --local -match 4 -mismatch 5
+```
+
+la alineación local sería simplemente:
+
+```
+A
+|
+A
+```
+
+La alineación no puede extenderse más hacia la izquierda, ya que **"no vale la pena"** añadir una penalización de -5 cuando la recompensa es solo de 4.
+
+Elegir la matriz adecuada, especialmente para secuencias de proteínas, es aún más complicado.
+
 ## Tipos de matrices de puntuación
 
 Existen dos tipos de matrices de puntuación: para nucleótidos y para proteínas. Las matrices de proteínas vienen en muchas variantes, calculadas bajo diferentes suposiciones sobre lo que significa la similitud. Además, las matrices de puntuación pueden estar normalizadas o no, lo cual debe tenerse en cuenta al comparar puntuaciones.
