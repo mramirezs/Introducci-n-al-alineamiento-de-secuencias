@@ -34,9 +34,6 @@ Las alineaciones tienen dos aplicaciones principales:
 
 ![image](figures/alineacione1.png)
 
-1. Encontrar regiones similares entre dos secuencias, explorando la relación entre ellas.
-2. Encontrar qué secuencia (de entre muchas alternativas) es la más similar a una secuencia de consulta (entrada).
-
 ## ¿Qué determina una alineación?
 Cada alineación está determinada por dos factores:
 
