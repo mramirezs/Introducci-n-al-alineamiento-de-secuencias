@@ -32,7 +32,7 @@ Aquí vemos dos alineaciones más de las mismas secuencias que también parecen 
 ## ¿Para qué se usan las alineaciones?
 Las alineaciones tienen dos aplicaciones principales:
 
-![](pictures/alineacion1.png)
+![](figure/alineacione1.png)
 
 1. Encontrar regiones similares entre dos secuencias, explorando la relación entre ellas.
 2. Encontrar qué secuencia (de entre muchas alternativas) es la más similar a una secuencia de consulta (entrada).
