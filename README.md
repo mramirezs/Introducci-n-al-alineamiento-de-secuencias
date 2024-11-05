@@ -172,26 +172,33 @@ ATGCAAATGACAAAT-CGA
 ATGC---TGATAACTGCGA
 ```
 
-## ¿Qué es una cadena CIGAR?
+De las bases anteriores, 13 son iguales (13 identidades), 5 bases están ausentes (5 espacios), y 2 bases son diferentes (2 discrepancias).
 
-La cadena CIGAR (Compact Idiosyncratic Gapped Alignment Report) es un formato de alineación utilizado en los archivos de alineación de secuencias (SAM). Para la alineación anterior, el formato CIGAR se vería así:
+Aquí tienes la traducción:
+
+---
+
+## ¿Importa cuál secuencia está en la parte superior?
+
+Usualmente, a menos que se indique explícitamente lo contrario, leemos e interpretamos la alineación como si estuviéramos comparando la secuencia inferior con la superior.
 
 ```
-4M3D3M1X2M1X1M2D
+ATGCAAATGACAAAT-CGA
+||||   |||.||.| |||
+ATGC---TGATAACTGCGA
 ```
 
-Esto se lee como:
+Mientras que la palabra “espacio” es genérica y se refiere a cualquiera de las secuencias, si queremos ser más específicos, podríamos decir que la alineación anterior muestra tres eliminaciones de A y una inserción de G. La palabra “eliminación” significa que la segunda secuencia tiene bases faltantes en comparación con la primera.
 
-- 4 coincidencias seguidas de
-- 3 eliminaciones,
-- 3 coincidencias,
-- 1 discrepancia,
-- 2 coincidencias,
-- 1 discrepancia,
-- 1 coincidencia,
-- 2 eliminaciones.
+Podríamos generar y mostrar esta misma alineación al revés:
 
-En el formato CIGAR extendido, `X` representa discrepancias. En el formato SAM, las coincidencias y discrepancias se agrupan bajo `M`, por lo que `4M3D7M2D` representa la misma alineación pero con un formato más compacto.
+```
+ATGC---TGATAACTGCGA
+||||   |||.||.| |||
+ATGCAAATGACAAAT-CGA
+```
+
+Esta alineación se describiría ahora como una que contiene tres inserciones de A seguidas posteriormente de una eliminación de G en relación con la secuencia superior. La eliminación en una secuencia es una inserción en la otra; todo depende de lo que trata el estudio.
 
 ## Alineaciones globales y locales
 
