@@ -1,7 +1,7 @@
 # Introducción a las alineaciones
 
 ## ¿Qué es una alineación de secuencias?
-Una alineación de secuencias (específicamente alineación por pares) significa organizar dos secuencias de forma que las regiones con similitudes se alineen. Por ejemplo, la alineación de `GATTACA` y `GATCA` podría verse así:
+Una alineación de secuencias (específicamente alineación por pares) significa **organizar dos secuencias de forma que las regiones con similitudes se alineen**. Por ejemplo, la alineación de `GATTACA` y `GATCA` podría verse así:
 
 ```
 GATTACA
@@ -9,7 +9,7 @@ GATTACA
 GATCA--
 ```
 
-A simple vista, las alineaciones suelen tener sentido de forma intuitiva, pero cuidado, ya que nuestra intuición puede ser engañosa.
+A simple vista, las alineaciones suelen tener sentido de forma intuitiva, pero cuidado, ya que nuestra intuición puede ser engañosa. Y cada persona puede intuir una alineación diferente.
 
 Nuestro cerebro está predispuesto a ver patrones y similitudes siempre que sea posible. Una vez que percibimos una similitud, nos resulta difícil reconocer otras alternativas que podrían ser igual de buenas (o incluso mejores) que la que estamos observando. Es difícil “dejar de ver” un patrón. Por ejemplo, podríamos haber dispuesto las secuencias así:
 
@@ -31,6 +31,8 @@ Aquí vemos dos alineaciones más de las mismas secuencias que también parecen 
 
 ## ¿Para qué se usan las alineaciones?
 Las alineaciones tienen dos aplicaciones principales:
+
+![](pictures/alineacion1.png)
 
 1. Encontrar regiones similares entre dos secuencias, explorando la relación entre ellas.
 2. Encontrar qué secuencia (de entre muchas alternativas) es la más similar a una secuencia de consulta (entrada).
