@@ -155,3 +155,65 @@ Hay muchos recursos para profundizar en alineaciones y puntuación. Wikipedia y 
 - Wikipedia: [Alineación de Secuencias](https://es.wikipedia.org/wiki/Alineaci%C3%B3n_de_secuencias)
 - Wikipedia: [Penalización de Espacios](https://es.wikipedia.org/wiki/Penalizaci%C3%B3n_de_espacios)
 
+
+## Alineaciones globales y locales
+
+Para ejecutar los ejemplos, instala el paquete `bio` desarrollado para este libro:
+
+```bash
+pip install bio --upgrade
+```
+
+Puedes leer más sobre cómo funciona el método `bio align` en [https://www.bioinfo.help/bio-align.html](https://www.bioinfo.help/bio-align.html).
+
+### Nota importante sobre alineaciones
+Los algoritmos de alineación en `bio align` utilizan la implementación de BioPython, ideal para uso interactivo y exploratorio al alinear secuencias relativamente cortas (de hasta aproximadamente 30 kb de longitud).
+
+El software especializado en alineación genómica suele operar con órdenes de magnitud más rápidos, aunque ajusta características a cambio de esa mayor velocidad. Dependiendo de tus necesidades, es posible que desees usar uno de los numerosos alineadores disponibles, como: `blast`, `blat`, `fasta36`, `mummer`, `minimap2`, `lastz`, `lastal`, `exonerate`, `vsearch`, `diamond`, etc.
+
+La gran cantidad de opciones de alineadores, junto con el enorme número de parámetros que cada alineador permite personalizar, muestra que las alineaciones son tareas complejas y multifacéticas.
+
+### Cómo realizar una alineación con `bio`
+Verifica que el script funcione con:
+
+```bash
+bio align THISLINE ISALIGNED
+```
+
+Esto imprimirá:
+
+```
+# seq1 (8) vs seq2 (9)
+# pident=36.4% len=11 ident=4 mis=2 del=2 ins=3
+# semiglobal: score=8.0 matrix=BLOSUM62 gapopen=11 gapextend=1
+
+THISLI--NE-
+--||..--||-
+--ISALIGNED
+```
+
+La herramienta `bio align` está diseñada de tal manera que permite utilizar tanto cadenas de texto como nombres de archivos FASTA. Podemos obtener una matriz de puntuación diferente:
+
+```bash
+wget -nc ftp://ftp.ncbi.nlm.nih.gov/blast/matrices/BLOSUM30
+```
+
+Y luego usar la matriz de puntuación personalizada de la siguiente manera:
+
+```bash
+bio align THISLINE ISALIGNED --matrix BLOSUM30
+```
+
+Esto imprimirá:
+
+```
+# seq1 (8) vs seq2 (9)
+# pident=36.4% len=11 ident=4 mis=2 del=2 ins=3
+# semiglobal: score=13.0 matrix=BLOSUM30 gapopen=11 gapextend=1
+
+THIS--LINE-
+--||--..||-
+--ISALIGNED
+```
+
+En los ejemplos a continuación, utilizaremos secuencias proteicas hipotéticas `THISLINE` e `ISALIGNED`, palabras reales que también resultan ser secuencias peptídicas válidas. Estas secuencias se utilizaron por primera vez con un propósito similar, aunque en un contexto diferente, en el libro *Understanding Bioinformatics* de Marketa Zvelebil y Jeremy Baum.
