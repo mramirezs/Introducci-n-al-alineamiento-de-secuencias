@@ -219,6 +219,7 @@ El software especializado en alineación genómica suele operar con órdenes de 
 La gran cantidad de opciones de alineadores, junto con el enorme número de parámetros que cada alineador permite personalizar, muestra que las alineaciones son tareas complejas y multifacéticas.
 
 ### Cómo realizar una alineación con `bio`
+
 Verifica que el script funcione con:
 
 ```bash
@@ -262,3 +263,153 @@ THIS--LINE-
 ```
 
 En los ejemplos a continuación, utilizaremos secuencias proteicas hipotéticas `THISLINE` e `ISALIGNED`, palabras reales que también resultan ser secuencias peptídicas válidas. Estas secuencias se utilizaron por primera vez con un propósito similar, aunque en un contexto diferente, en el libro *Understanding Bioinformatics* de Marketa Zvelebil y Jeremy Baum.
+
+### ¿Qué es una alineación global?
+
+Por defecto el bio align la herramienta realiza una alineación semi-global, donde los huecos finales de la consulta no tienen penalizaciones. Al realizar alineaciones globales, las bases de ambas secuencias están dispuestas una al lado de la otra en toda su longitud. Cada base de la primera secuencia se corresponde con otra base o una “gap” de la segunda secuencia.
+
+Usamos alineaciones globales cuando buscamos un arreglo que maximice las similitudes en toda la longitud de ambas secuencias:
+
+```bash
+bio align THISLINE ISALIGNED --global
+```
+
+eso imprime:
+
+```
+# seq1 (8) vs seq2 (9)
+# pident=22.2% len=9 ident=2 mis=6 del=0 ins=1
+# global: score=-7.0 matrix=BLOSUM62 gapopen=11 gapextend=1
+
+THISLINE-
+......||-
+ISALIGNED
+```
+
+También podemos anular la brecha abierta y la penalización de extensión de la brecha:
+
+```bash
+bio align THISLINE ISALIGNED --global --open 7
+```
+
+ahora la alineación se ve así:
+
+```
+# seq1 (8) vs seq2 (9)
+# pident=54.5% len=11 ident=6 mis=0 del=2 ins=3
+# global: score=6.0 matrix=BLOSUM62 gapopen=5 gapextend=1
+
+THIS-LI-NE-
+--||-||-||-
+--ISALIGNED
+```
+
+Tenga en cuenta cuán radicalmente diferente es la segunda alineación de la primera. Todo lo que hicimos fue reducir la pena de abrir una brecha 11`` to7en. La alineación es más larga pero tiene más huecos. La compensación es fácilmente evidente.
+
+Recuerde, una alineación encuentra la disposición que maximiza la puntuación de recompensas y penalizaciones en todas las secuencias.
+
+### ¿Qué es una alineación local?
+
+Las alineaciones locales se utilizan cuando necesitamos encontrar la región de similitud máxima entre dos secuencias. Al realizar alineaciones locales, los algoritmos buscan el intervalo de puntuación más alto (parcial) entre las dos secuencias :
+
+```bash
+bio align THISLINE ISALIGNED --local
+```
+
+Cuando se ejecuta como arriba, la alineación local generada con los parámetros predeterminados será sorprendentemente corta:
+
+```
+# seq1 (2) vs seq2 (2)
+# pident=100.0% len=2 ident=2 mis=0 del=0 ins=0
+# local: score=11.0 matrix=BLOSUM62 gapopen=11 gapextend=1
+
+NE
+||
+NE
+```
+
+El algoritmo nos dice que estos dos aminoácidos coincidentes producen la puntuación más alta posible (11 en este caso) y cualquier otra alineación local entre las dos secuencias producirá una puntuación peor que 11.
+
+Podemos usar otras matrices de puntuación como se muestra en ftp://ftp.ncbi.nlm.nih.gov/blast/matrices/, muchos de estos están incluidos con bio.
+
+```
+#  DNA matrices
+# This matrix is the "standard" EDNAFULL substitution matrix.
+wget ftp://ftp.ncbi.nlm.nih.gov/blast/matrices/NUC.4.4
+
+# Protein matrices
+# Get the BLOSUM30, BLOSUM62, and BLOSUM90 matrices.
+wget -nc ftp://ftp.ncbi.nlm.nih.gov/blast/matrices/BLOSUM30
+```
+
+Obsérvese cómo la alineación local se ve afectada por el esquema de puntuación.
+
+```
+bio align THISLINE ISALIGNED -matrix BLOSUM30 --local
+Usando el BLOSUM90 el esquema de puntuación produce una alineación mucho más larga:
+
+# seq1 (4) vs seq2 (4)
+# pident=50.0% len=4 ident=2 mis=2 del=0 ins=0
+# local: score=15.0 matrix=BLOSUM30 gapopen=11 gapextend=1
+
+LINE
+..||
+IGNE
+```
+
+### ¿Cómo elegimos la matriz correcta?
+
+Selección de la Matriz de Puntuación de Similitud Correcta por William Pearson, el autor del programa FASTA.
+
+Aquí hay algunas líneas del resumen:
+
+Si bien las matrices “deep” proporcionan búsquedas de similitud muy sensibles, también requieren alineaciones de secuencia más largas y, a veces, pueden producir una sobreextensión de alineación en regiones no homólogas. Las matrices de puntuación más superficiales son más efectivas cuando se buscan dominios proteicos cortos, o cuando el objetivo es limitar el alcance de la búsqueda a secuencias que probablemente sean ortólogas entre organismos recientemente divergentes.
+
+Del mismo modo, en las búsquedas de ADN, los parámetros de coincidencia y desajuste establecen tiempos de retroceso evolutivos y límites de dominio.
+
+### ¿Cómo “veo” la matriz?
+
+`bio align` imprimirá la matriz (cuando utilice valores incorporados):
+
+```bash
+bio align -matrix PAM250 | head -15
+```
+
+impresiones:
+
+```
+#
+# This matrix was produced by "pam" Version 1.0.6 [28-Jul-93]
+#
+# PAM 250 substitution matrix, scale = ln(2)/3 = 0.231049
+#
+# Expected score = -0.844, Entropy = 0.354 bits
+#
+# Lowest score = -8, Highest score = 17
+#
+   A  R  N  D  C  Q  E  G  H  I  L  K  M  F  P  S  T  W  Y  V  B  Z  X  *
+A  2 -2  0  0 -2  0  0  1 -1 -1 -2 -1 -1 -3  1  1  1 -6 -3  0  0  0  0 -8
+R -2  6  0 -1 -4  1 -1 -3  2 -2 -3  3  0 -4  0  0 -1  2 -4 -2 -1  0 -1 -8
+N  0  0  2  2 -4  1  1  0  2 -2 -3  1 -2 -3  0  1  0 -4 -2 -2  2  1  0 -8
+D  0 -1  2  4 -5  2  3  1  1 -2 -4  0 -3 -6 -1  0  0 -7 -4 -2  3  3 -1 -8
+C -2 -4 -4 -5 12 -5 -5 -3 -3 -2 -6 -5 -5 -4 -3  0 -2 -8  0 -2 -4 -5 -3 -8
+...
+```
+
+### ¿Por qué los valores de puntuación son números enteros?
+
+Podría preguntarse, con razón, ¿cómo es que los puntajes son todos enteros? Y también lo que hace 3 vs. 5 ¿media en una matriz de puntuación?
+
+En pocas palabras, la puntuación refleja una probabilidad. Además, los puntajes se representan como probabilidades de registro 2. Una puntuación de sustitución de 3 medios 2^3=8 mientras que una puntuación de sustitución de 5 medios 2^5=32, por lo tanto, un aumento de cuatro veces de probabilidad entre sí.
+
+Por lo tanto, una sustitución con una puntuación de 3 es cuatro veces más probable que ocurra que un cambio con una puntuación de 5. Para simplificar y mantener nuestra cordura, las probabilidades log2 se redondearon a los enteros más cercanos.
+
+Tenga en cuenta cómo la puntuación no es absoluta; son relativos entre sí. Cualquier otro número par con las mismas proporciones tendría el mismo efecto.
+
+### ¿Qué es una alineación semi-global?
+
+Las alineaciones semi-globales (también conocidas como global-local, glocal) son un cruce entre las alineaciones globales y locales.
+
+Las alineaciones semi-globales intentan alinear completamente una secuencia más corta contra una más larga (referencia). El objetivo se logra estableciendo las sanciones de brecha final en cero.
+
+Se utilizan alineadores semi-globales cuando se hacen coincidir lecturas de secuenciación producidas por instrumentos de secuenciación con genomas de referencia. La mayoría de los protocolos de análisis de datos de alto rendimiento que cubrimos en este libro se basan en herramientas que utilizan este tipo de alineación.
