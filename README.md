@@ -266,7 +266,33 @@ En los ejemplos a continuación, utilizaremos secuencias proteicas hipotéticas 
 
 ### ¿Qué es una alineación global?
 
-Por defecto el bio align la herramienta realiza una alineación semi-global, donde los huecos finales de la consulta no tienen penalizaciones. Al realizar alineaciones globales, las bases de ambas secuencias están dispuestas una al lado de la otra en toda su longitud. Cada base de la primera secuencia se corresponde con otra base o una “gap” de la segunda secuencia.
+La herramienta `bio align`, por defecto, realiza una alineación semi-global. Esto significa que permite que haya "gaps" (huecos) al final de la secuencia de consulta (o "query") sin penalizarlos. En otras palabras, si al final de la consulta quedan bases sin alinear, no se les resta puntos. Este tipo de alineación es útil cuando queremos comparar una secuencia corta con una más larga, sin preocuparnos por los extremos.
+
+Por otro lado, cuando hacemos una alineación global, tratamos de alinear las dos secuencias en toda su longitud, de principio a fin. En este caso, cada base de una secuencia debe estar alineada con una base de la otra secuencia, o si no hay coincidencia, se coloca un “gap” en la segunda secuencia.
+
+Ejemplo: Imagina que tienes dos secuencias de ADN:
+
+- Secuencia 1 (consulta): ACTG
+- Secuencia 2: GACTGA
+
+En una alineación semi-global, el programa puede hacer algo como esto:
+
+```
+   ACTG
+   ||||
+GACTGA
+```
+Aquí, las bases coinciden sin importar que al final de la segunda secuencia haya más letras.
+
+En cambio, en una alineación global, se alinea la totalidad de ambas secuencias y se usan “gaps” cuando es necesario para mantener la longitud. Así se vería:
+
+```
+- ACTG-
+  |||||
+GACTGA
+```
+
+Aquí, los huecos adicionales se agregan al final de la primera secuencia (`ACTG-`) para que coincida con la longitud de la segunda (`GACTGA`).
 
 Usamos alineaciones globales cuando buscamos un arreglo que maximice las similitudes en toda la longitud de ambas secuencias:
 
@@ -304,7 +330,7 @@ THIS-LI-NE-
 --ISALIGNED
 ```
 
-Tenga en cuenta cuán radicalmente diferente es la segunda alineación de la primera. Todo lo que hicimos fue reducir la pena de abrir una brecha 11`` to7en. La alineación es más larga pero tiene más huecos. La compensación es fácilmente evidente.
+Tenga en cuenta cuán radicalmente diferente es la segunda alineación de la primera. Todo lo que hicimos fue reducir la pena de abrir una brecha `11`` to7en`. La alineación es más larga pero tiene más huecos. La compensación es fácilmente evidente.
 
 Recuerde, una alineación encuentra la disposición que maximiza la puntuación de recompensas y penalizaciones en todas las secuencias.
 
@@ -398,9 +424,9 @@ C -2 -4 -4 -5 12 -5 -5 -3 -3 -2 -6 -5 -5 -4 -3  0 -2 -8  0 -2 -4 -5 -3 -8
 
 ### ¿Por qué los valores de puntuación son números enteros?
 
-Podría preguntarse, con razón, ¿cómo es que los puntajes son todos enteros? Y también lo que hace 3 vs. 5 ¿media en una matriz de puntuación?
+Podría preguntarse, con razón, ¿cómo es que los puntajes son todos enteros? Y también lo que hace `3` vs. `5` ¿media en una matriz de puntuación?
 
-En pocas palabras, la puntuación refleja una probabilidad. Además, los puntajes se representan como probabilidades de registro 2. Una puntuación de sustitución de 3 medios 2^3=8 mientras que una puntuación de sustitución de 5 medios 2^5=32, por lo tanto, un aumento de cuatro veces de probabilidad entre sí.
+En pocas palabras, la puntuación refleja una probabilidad. Además, los puntajes se representan como probabilidades de registro 2. Una puntuación de sustitución de 3 medios `2^3=8` mientras que una puntuación de sustitución de `5` medios `2^5=32`, por lo tanto, un aumento de cuatro veces de probabilidad entre sí.
 
 Por lo tanto, una sustitución con una puntuación de 3 es cuatro veces más probable que ocurra que un cambio con una puntuación de 5. Para simplificar y mantener nuestra cordura, las probabilidades log2 se redondearon a los enteros más cercanos.
 
