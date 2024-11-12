@@ -406,7 +406,7 @@ Si bien las matrices “deep” proporcionan búsquedas de similitud muy sensibl
 ![image](figures/ortologos_paralogos.png)
 
 
-Del mismo modo, en las búsquedas de ADN, los parámetros de coincidencia y desajuste establecen tiempos de retroceso evolutivos y límites de dominio.
+Del mismo modo, en las búsquedas de ADN, los parámetros de coincidencia y desajuste en las búsquedas de ADN reflejan una especie de "retroceso evolutivo" o antigüedad de la similitud, estableciendo también límites de dominio en función de las probabilidades de cambio entre nucleótidos a lo largo del tiempo.
 
 ### ¿Cómo “veo” la matriz?
 
