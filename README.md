@@ -340,7 +340,7 @@ Recuerde, una alineación encuentra la disposición que maximiza la puntuación 
 
 ### ¿Qué es una alineación local?
 
-Las alineaciones locales se utilizan cuando necesitamos encontrar la región de similitud máxima entre dos secuencias. Al realizar alineaciones locales, los algoritmos buscan el intervalo de puntuación más alto (parcial) entre las dos secuencias :
+**Las alineaciones locales se utilizan cuando necesitamos encontrar la región de similitud máxima entre dos secuencias.** Esto es particularmente útil cuando solo una parte de las secuencias es relevante, por ejemplo, cuando una proteína contiene dominios específicos similares a otras proteínas. Al realizar alineaciones locales, los algoritmos buscan el intervalo de puntuación más alto (es decir, la región donde las secuencias son más similares) y lo reporta. Así, una alineación local puede ser una pequeña parte de cada secuencia, en lugar de intentar alinear todos los elementos de principio a fin.
 
 ```bash
 bio align THISLINE ISALIGNED --local
@@ -389,11 +389,22 @@ IGNE
 
 ### ¿Cómo elegimos la matriz correcta?
 
+La matriz de sustitución define la puntuación de cada coincidencia y desajuste entre elementos de las secuencias (aminoácidos o nucleótidos), lo cual afecta drásticamente la alineación. Aquí tienes algunos ejemplos:
+
+- **Matrices para ADN:** Existen matrices específicas para alineaciones de secuencias de ADN, como EDNAFULL, que es una matriz estándar para comparar nucleótidos.
+- 
+- **Matrices para proteínas:** Para proteínas, se utilizan matrices BLOSUM (p. ej., BLOSUM30, BLOSUM62, BLOSUM90) o PAM. Cada matriz tiene sus propias particularidades en cuanto a la puntuación de coincidencias y desajustes. Generalmente:
+   - **BLOSUM30** es útil para secuencias distantes (más permisiva con desajustes).
+   - **BLOSUM90** es más restrictiva y adecuada para secuencias más similares.
+
 Selección de la Matriz de Puntuación de Similitud Correcta por William Pearson, el autor del programa FASTA.
 
 Aquí hay algunas líneas del resumen:
 
 Si bien las matrices “deep” proporcionan búsquedas de similitud muy sensibles, también requieren alineaciones de secuencia más largas y, a veces, pueden producir una sobreextensión de alineación en regiones no homólogas. Las matrices de puntuación más superficiales son más efectivas cuando se buscan dominios proteicos cortos, o cuando el objetivo es limitar el alcance de la búsqueda a secuencias que probablemente sean ortólogas entre organismos recientemente divergentes.
+
+![image](figures/ortologos_paralogos.png)
+
 
 Del mismo modo, en las búsquedas de ADN, los parámetros de coincidencia y desajuste establecen tiempos de retroceso evolutivos y límites de dominio.
 
@@ -428,18 +439,18 @@ C -2 -4 -4 -5 12 -5 -5 -3 -3 -2 -6 -5 -5 -4 -3  0 -2 -8  0 -2 -4 -5 -3 -8
 
 ### ¿Por qué los valores de puntuación son números enteros?
 
-Podría preguntarse, con razón, ¿cómo es que los puntajes son todos enteros? Y también lo que hace `3` vs. `5` ¿media en una matriz de puntuación?
+En las matrices de sustitución (como BLOSUM o PAM), los valores de puntuación representan la probabilidad relativa de que una sustitución específica ocurra durante la evolución de las secuencias. Esta probabilidad se expresa en términos de logaritmos en base 2 (log2), que son más manejables en alineaciones de secuencias.
 
-En pocas palabras, la puntuación refleja una probabilidad. Además, los puntajes se representan como probabilidades de registro 2. Una puntuación de sustitución de 3 medios `2^3=8` mientras que una puntuación de sustitución de `5` medios `2^5=32`, por lo tanto, un aumento de cuatro veces de probabilidad entre sí.
+**Logaritmos y Probabilidades en Puntuaciones**
 
-Por lo tanto, una sustitución con una puntuación de 3 es cuatro veces más probable que ocurra que un cambio con una puntuación de 5. Para simplificar y mantener nuestra cordura, las probabilidades log2 se redondearon a los enteros más cercanos.
+Los valores de puntuación se obtienen de la probabilidad de que dos aminoácidos específicos se sustituyan entre sí en relación con la probabilidad de que se alineen al azar.
 
-Tenga en cuenta cómo la puntuación no es absoluta; son relativos entre sí. Cualquier otro número par con las mismas proporciones tendría el mismo efecto.
+Al representar las puntuaciones en logaritmos base 2 (log2), podemos expresar el cambio en probabilidad en términos de potencias de 2. Esto facilita la interpretación de las puntuaciones.
+
+Así, una puntuación de 3 implica una probabilidad de sustitución de 2^3 = 8 veces más probable que al azar, mientras que una puntuación de 5 implica una probabilidad de 2^5 = 32 veces. La sustitución con puntuación 3 es cuatro veces más probable que una con puntuación 5.
 
 ### ¿Qué es una alineación semi-global?
 
 Las alineaciones semi-globales (también conocidas como global-local, glocal) son un cruce entre las alineaciones globales y locales.
 
 Las alineaciones semi-globales intentan alinear completamente una secuencia más corta contra una más larga (referencia). El objetivo se logra estableciendo las sanciones de brecha final en cero.
-
-Se utilizan alineadores semi-globales cuando se hacen coincidir lecturas de secuenciación producidas por instrumentos de secuenciación con genomas de referencia. La mayoría de los protocolos de análisis de datos de alto rendimiento que cubrimos en este libro se basan en herramientas que utilizan este tipo de alineación.
