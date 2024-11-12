@@ -266,7 +266,7 @@ En los ejemplos a continuación, utilizaremos secuencias proteicas hipotéticas 
 
 ### ¿Qué es una alineación global?
 
-![image](figures/global_local_alignment.png)
+![image](figures/globla_local_alignment.png)
 
 Una alineación global busca maximizar las similitudes a lo largo de toda la longitud de las secuencias, lo que significa que intenta encontrar la mejor correspondencia de extremo a extremo para ambas secuencias. Esta técnica es especialmente útil cuando las secuencias tienen tamaños similares y queremos compararlas en su totalidad.
 
