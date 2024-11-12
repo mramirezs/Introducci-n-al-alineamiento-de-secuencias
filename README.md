@@ -266,9 +266,13 @@ En los ejemplos a continuación, utilizaremos secuencias proteicas hipotéticas 
 
 ### ¿Qué es una alineación global?
 
+![image](figures/global_local_alignment.png)
+
+Una alineación global busca maximizar las similitudes a lo largo de toda la longitud de las secuencias, lo que significa que intenta encontrar la mejor correspondencia de extremo a extremo para ambas secuencias. Esta técnica es especialmente útil cuando las secuencias tienen tamaños similares y queremos compararlas en su totalidad.
+
 La herramienta `bio align`, por defecto, realiza una alineación semi-global. Esto significa que permite que haya "gaps" (huecos) al final de la secuencia de consulta (o "query") sin penalizarlos. En otras palabras, si al final de la consulta quedan bases sin alinear, no se les resta puntos. Este tipo de alineación es útil cuando queremos comparar una secuencia corta con una más larga, sin preocuparnos por los extremos.
 
-Por otro lado, cuando hacemos una alineación global, tratamos de alinear las dos secuencias en toda su longitud, de principio a fin. En este caso, cada base de una secuencia debe estar alineada con una base de la otra secuencia, o si no hay coincidencia, se coloca un “gap” en la segunda secuencia.
+**Por otro lado, cuando hacemos una alineación global, tratamos de alinear las dos secuencias en toda su longitud, de principio a fin.** En este caso, cada base de una secuencia debe estar alineada con una base de la otra secuencia, o si no hay coincidencia, se coloca un “gap” en la segunda secuencia.
 
 Ejemplo: Imagina que tienes dos secuencias de ADN:
 
@@ -280,16 +284,16 @@ En una alineación semi-global, el programa puede hacer algo como esto:
 ```
    ACTG
    ||||
-GACTGA
+  GACTGA
 ```
 Aquí, las bases coinciden sin importar que al final de la segunda secuencia haya más letras.
 
 En cambio, en una alineación global, se alinea la totalidad de ambas secuencias y se usan “gaps” cuando es necesario para mantener la longitud. Así se vería:
 
 ```
-- ACTG-
+ -ACTG-
   |||||
-GACTGA
+ GACTGA
 ```
 
 Aquí, los huecos adicionales se agregan al final de la primera secuencia (`ACTG-`) para que coincida con la longitud de la segunda (`GACTGA`).
