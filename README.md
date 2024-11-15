@@ -449,8 +449,346 @@ Al representar las puntuaciones en logaritmos base 2 (log2), podemos expresar el
 
 Así, una puntuación de 3 implica una probabilidad de sustitución de 2^3 = 8 veces más probable que al azar, mientras que una puntuación de 5 implica una probabilidad de 2^5 = 32 veces. La sustitución con puntuación 3 es cuatro veces más probable que una con puntuación 5.
 
-### ¿Qué es una alineación semi-global?
 
-Las alineaciones semi-globales (también conocidas como global-local, glocal) son un cruce entre las alineaciones globales y locales.
+## Entonces quieres alinear secuencias - Alineamiento por pares
 
-Las alineaciones semi-globales intentan alinear completamente una secuencia más corta contra una más larga (referencia). El objetivo se logra estableciendo las sanciones de brecha final en cero.
+El **alineamiento por pares** consiste en alinear dos secuencias, que llamaremos **consulta** (query) y **objetivo** (target). Este proceso es fundamental en bioinformática para comparar y analizar similitudes o diferencias entre secuencias.
+
+### ¿Cómo elegir el software adecuado para el alineamiento?
+
+Existen muchas herramientas para realizar alineamientos por pares. A continuación, te damos una guía sencilla para elegir la adecuada.
+
+#### Preguntas clave para elegir un alineador:
+
+1. **¿Qué tipo de secuencias vas a alinear?**  
+   - ¿Son ADN, ARN o proteínas?
+
+2. **¿Cuánto miden las secuencias?**  
+   - Algunas herramientas funcionan mejor con secuencias largas o cortas.
+
+3. **¿Qué diferencias esperas entre las secuencias?**  
+   - Pequeñas mutaciones, inserciones, deleciones, etc.
+
+4. **¿Cuántas secuencias necesitas alinear?**  
+   - Esto afecta el tiempo de ejecución y los recursos necesarios.
+
+5. **¿Necesitas el mejor alineamiento o varios alineamientos posibles?**  
+   - Algunos programas solo ofrecen el alineamiento con la mejor puntuación, mientras que otros incluyen alineamientos secundarios.
+
+6. **¿Qué información necesitas extraer del alineamiento?**  
+   - ¿Solo quieres la secuencia alineada o también estadísticas?
+
+7. **¿Cuál es el tiempo de ejecución esperado?**  
+   - Algunos alineadores son rápidos pero menos precisos, mientras que otros son más lentos pero óptimos.
+
+### ¿Qué pasa si elegimos mal la herramienta?
+
+Si el software no es el adecuado, podrías enfrentar problemas como:
+
+- Ejecuciones lentas.
+- Bloqueos o consumo excesivo de memoria.
+- Resultados inesperados o sin sentido.
+  
+No te preocupes, ¡nos ha pasado a todos! 🧠
+
+### ¿Cómo elegir la secuencia "query"?
+
+El término **query/target** afecta cómo interpretamos las diferencias entre las secuencias. Por ejemplo:
+
+- Si una base está ausente en una secuencia, el alineador generará un **gap** (brecha).
+  - Si la **query** es la secuencia más corta, se interpreta como una **deleción**.
+  - Si la **query** es la más larga, se interpreta como una **inserción**.
+
+En resumen: **Las diferencias siempre se describen en relación con la query.**
+
+### Tipos de alineamientos y sus características
+
+#### 1. **Decidir el tipo de secuencia**
+   - ¿Vas a alinear ADN, ARN o péptidos?  
+   - Algunos programas, como **lastz**, pueden manejar alfabetos extendidos de ADN (donde `W` significa A o T, por ejemplo).
+
+#### 2. **Considerar regiones de baja complejidad**
+   - Herramientas como **lastz** pueden ignorar regiones con letras en minúscula (secuencias de baja complejidad). Si necesitas incluirlas, asegúrate de configurar el programa correctamente.
+
+### Rendimiento: Velocidad vs. Precisión
+
+No todas las herramientas ofrecen el mismo balance entre velocidad y precisión:
+
+1. **Herramientas rápidas**  
+   - Útiles para alineamientos simples o secuencias similares.
+   - Pueden usar heurísticas y no siempre encuentran alineamientos en secuencias muy diferentes.
+
+2. **Herramientas precisas (matemáticamente óptimas)**  
+   - Ideales para secuencias muy diferentes, pero suelen ser más lentas.
+
+### Factores limitantes más comunes
+
+1. **Longitud de las secuencias**  
+   - Cuanto más largas sean las secuencias, mayor será el tiempo de cálculo.
+
+2. **Número de alineamientos necesarios**  
+   - Comparar muchas secuencias aumenta el tiempo de ejecución y el uso de memoria.
+
+### Instalación de herramientas
+
+Algunos alineadores populares que puedes instalar con **mamba**:
+
+```bash
+mamba install mafft exonerate lastz
+```
+
+## Recursos útiles
+
+- [MAFFT](https://mafft.cbrc.jp/alignment/software/)
+- [Exonerate](https://www.ebi.ac.uk/about/vertebrate-genomics/software/exonerate)
+- [Lastz](http://www.bx.psu.edu/~rsharris/lastz/)
+
+¡Con esta guía ya tienes las bases para realizar alineamientos por pares! 🚀
+
+## Parte práctica: Herramientas para el alineamiento de secuencias
+
+En esta sección exploraremos cómo realizar alineamientos de secuencias utilizando diferentes herramientas. 🧪
+
+## Obteniendo los datos
+
+Para nuestros ejemplos, usaremos datos reales. ¡Primero descarguemos las secuencias! 👇
+
+```bash
+# Obtener el genoma completo de SARS-CoV-2 y el SARS-CoV de murciélagos
+bio fetch NC_045512 --format fasta > genome1.fa
+bio fetch MN996532  --format fasta > genome2.fa
+
+# Obtener la proteína S de SARS-CoV-2 y el SARS-CoV de murciélagos
+bio fetch YP_009724390 --format fasta > pep1.fa
+bio fetch QHR63300 --format fasta > pep2.fa
+
+# Obtener transcrito y CDS del gen BRAF humano
+bio fetch ENST00000288602 > transcript-full.fa
+bio fetch ENST00000288602 --type cds > transcript-cds.fa
+```
+
+## Analizando las secuencias
+
+Podemos ver estadísticas básicas de estas secuencias con `seqkit`:
+
+```bash
+seqkit stats *.fa
+```
+
+Salida esperada:
+
+```plaintext
+file                 format  type     num_seqs  sum_len  min_len  avg_len  max_len
+genome1.fa           FASTA   DNA             1   29,903   29,903   29,903   29,903
+genome2.fa           FASTA   DNA             1   29,855   29,855   29,855   29,855
+pep1.fa              FASTA   Protein         1    1,273    1,273    1,273    1,273
+pep2.fa              FASTA   Protein         1    1,269    1,269    1,269    1,269
+transcript-cds.fa    FASTA   DNA             1    2,421    2,421    2,421    2,421
+transcript-full.fa   FASTA   DNA             1  190,247  190,247  190,247  190,247
+```
+
+✨ **Nota:** Esta herramienta es excelente para verificar que los datos sean consistentes antes de continuar.
+
+## Herramienta 1: `bio align`
+
+`bio align` es una herramienta educativa basada en BioPython para aprender alineamientos por pares.
+
+### Características:
+- Soporta alineamientos locales, globales y semi-globales.
+- Reconoce automáticamente ADN y proteínas.
+- Ideal para alineamientos rápidos y cortos.
+- Limitado para secuencias largas (>10Kb).
+
+### Ejemplo 1: Alineando dos secuencias desde la línea de comandos
+
+```bash
+bio align GATTACA GATCA
+```
+
+Salida esperada:
+
+```plaintext
+# seq1 (7) vs seq2 (5)
+# pident=57.1% len=7 ident=4 mis=1 del=2 ins=0
+# semiglobal: score=2.0 match=1 mismatch=2 gapopen=11 gapextend=1
+
+GATTACA
+|||.|--
+GATCA--
+```
+
+🎯 **Concepto clave:** Observa cómo se calculan las diferencias entre ambas secuencias (identidades, deleciones, etc.).
+
+### Ejemplo 2: Alineando proteínas desde archivos
+
+```bash
+bio align pep1.fa pep2.fa
+```
+
+Salida esperada:
+
+```plaintext
+# YP_009724390.1 (1273) vs QHR63300.2 (1269)
+# pident=97.4% len=1273 ident=1240 mis=29 del=4 ins=0
+# semiglobal: score=6541.0 matrix=BLOSUM62 gapopen=11 gapextend=1
+```
+
+## Herramienta 2: BLAST
+
+BLAST (Basic Local Alignment Search Tool) es la herramienta más utilizada en bioinformática para alineamientos y búsquedas en bases de datos.
+
+### Características:
+- Realiza alineamientos locales.
+- Muy eficiente y ampliamente aceptada.
+- Ofrece múltiples formatos de salida.
+
+### Ejemplo 1: Alineando genomas completos
+
+```bash
+blastn -query genome1.fa -subject genome2.fa -outfmt 7
+```
+
+Salida esperada:
+
+```plaintext
+# Query: NC_045512.2 Severe acute respiratory syndrome coronavirus 2 isolate Wuhan-Hu-1, complete genome
+# Subject: MN996532.2 Bat coronavirus RaTG13, complete genome
+# Fields: query id, subject id, % identity, alignment length, mismatches, gap opens, q. start, q. end, s. start, s. end, evalue, bit score
+NC_045512.2    MN996532.2 96.14  29877  1130   7  1  29875  1  29855  0.0    48758
+```
+
+### Ejemplo 2: Alineando proteínas
+
+```bash
+blastp -query pep1.fa -subject pep2.fa
+```
+
+Salida esperada:
+
+```plaintext
+BLASTP 2.2.29+
+
+
+Query= YP_009724390.1 surface glycoprotein [Severe acute respiratory
+syndrome coronavirus 2]
+
+Length=1273
+
+Subject= QHR63300.2 spike glycoprotein [Bat coronavirus RaTG13]
+
+Length=1269
+
+
+ Score =  2565 bits (6648),  Expect = 0.0, Method: Compositional matrix adjust.
+ Identities = 1240/1273 (97%), Positives = 1252/1273 (98%), Gaps = 4/1273 (0%)
+
+Query  1     MFVFLVLLPLVSSQCVNLTTRTQLPPAYTNSFTRGVYYPDKVFRSSVLHSTQDLFLPFFS  60
+             MFVFLVLLPLVSSQCVNLTTRTQLPPAYTNS TRGVYYPDKVFRSSVLH TQDLFLPFFS
+Sbjct  1     MFVFLVLLPLVSSQCVNLTTRTQLPPAYTNSSTRGVYYPDKVFRSSVLHLTQDLFLPFFS  60
+
+...
+```
+
+### Ejemplo 2: Alineando CDS a Transcritos
+
+```bash
+blastn -query transcript-cds.fa -subject transcript-full.fa  -outfmt 7
+```
+
+Salida esperada:
+
+```plaintext
+# BLASTN 2.2.29+
+# Query: ENST00000288602.11
+# Subject: ENST00000288602.11 chromosome:GRCh38:7:140734486:140924732:-1
+# Fields: query id, subject id, % identity, alignment length, mismatches, gap opens, q. start, q. end, s. start, s. end, evalue, bit score
+# 19 hits found
+ENST00000288602.11 ENST00000288602.11 100.00 268    0  0  239    506    89859  90126  2e-141   496
+ENST00000288602.11 ENST00000288602.11 100.00 180    0  0  1635   1814   147642 147821 2e-92    333
+ENST00000288602.11 ENST00000288602.11 100.00 174    0  0  2248   2421   189963 190136 4e-89    322
+ENST00000288602.11 ENST00000288602.11 100.00 162    0  0  980    1141   130265 130426 2e-82    300
+ENST00000288602.11 ENST00000288602.11 100.00 149    0  0  712    860    123173 123321 3e-75    276
+ENST00000288602.11 ENST00000288602.11 100.00 141    0  0  1  141    30 170    9e-71    261
+ENST00000288602.11 ENST00000288602.11 100.00 139    0  0  1296   1434   141574 141712 1e-69    257
+ENST00000288602.11 ENST00000288602.11 100.00 139    0  0  2109   2247   184783 184921 1e-69    257
+```
+
+## Herramienta 3: Minimap2
+
+Minimap2 es un alineador altamente eficiente para lecturas largas o genomas completos.
+
+### Características:
+- Alineamientos semi-globales.
+- Soporta secuencias largas (hasta 100Mb).
+- Produce formatos de salida PAF y SAM.
+
+### Ejemplo: Comparando dos genomas
+
+```bash
+minimap2 -c genome1.fa genome2.fa > alignment.paf
+```
+
+---
+
+## Herramienta 4: MAFFT
+
+MAFFT es un alineador de secuencias múltiples, pero también funciona en modo por pares.
+
+### Ejemplo: Alineando genomas
+
+```bash
+cat genome1.fa genome2.fa > all.fa
+mafft --preservecase --auto all.fa > aligned.fa
+```
+
+🎯 **Salida clave:**  
+Puedes usar `bio format` para transformar el alineamiento en un formato más claro.
+
+---
+
+## Herramienta 5: LASTZ
+
+LASTZ es un alineador versátil diseñado para análisis comparativos de genomas.
+
+### Ejemplo:
+
+```bash
+lastz genome1.fa genome2.fa --format=paf
+```
+
+---
+
+## Herramienta 6: Exonerate
+
+Exonerate permite alineamientos versátiles (locales, globales, con y sin gaps).
+
+### Ejemplo:
+
+```bash
+exonerate --model affine:local transcript-cds.fa transcript-full.fa
+```
+
+---
+
+## Herramienta 7: MUMmer
+
+MUMmer es perfecto para comparar genomas completos rápidamente.
+
+### Ejemplo:
+
+```bash
+nucmer genome1.fa genome2.fa -p genome_alignment
+show-coords -r genome_alignment.delta
+```
+
+---
+
+### ¡Manos a la obra! 🚀  
+Estas herramientas son esenciales para realizar alineamientos en bioinformática. Experimenta con cada una para entender sus diferencias y casos de uso. ¿Cuál te parece más útil? 😊
+``` 
+
+### Explicación:
+1. **Comentarios amigables**: Ayudan a conectar con los estudiantes y mantener su interés.
+2. **Formato claro**: Bloques de código separados y explicaciones detalladas aseguran que todo sea fácil de seguir.
+3. **Conceptos clave destacados**: Ayudan a los estudiantes a identificar las lecciones principales.
+4. **Motivación al final**: Los invita a experimentar y reflexionar sobre las herramientas aprendidas.
