@@ -785,10 +785,3 @@ show-coords -r genome_alignment.delta
 
 ### ¡Manos a la obra! 🚀  
 Estas herramientas son esenciales para realizar alineamientos en bioinformática. Experimenta con cada una para entender sus diferencias y casos de uso. ¿Cuál te parece más útil? 😊
-``` 
-
-### Explicación:
-1. **Comentarios amigables**: Ayudan a conectar con los estudiantes y mantener su interés.
-2. **Formato claro**: Bloques de código separados y explicaciones detalladas aseguran que todo sea fácil de seguir.
-3. **Conceptos clave destacados**: Ayudan a los estudiantes a identificar las lecciones principales.
-4. **Motivación al final**: Los invita a experimentar y reflexionar sobre las herramientas aprendidas.
