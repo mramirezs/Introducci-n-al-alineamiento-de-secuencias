@@ -534,7 +534,10 @@ No todas las herramientas ofrecen el mismo balance entre velocidad y precisión:
 Algunos alineadores populares que puedes instalar con **mamba**:
 
 ```bash
-mamba install mafft exonerate lastz
+conda install -n base -c conda-forge mamba
+mamba create -n bioinfo python=3.9
+conda activate bioinfo
+mamba -c bioconda install mafft exonerate lastz
 ```
 
 ## Recursos útiles
